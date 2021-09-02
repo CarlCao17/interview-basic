@@ -2,7 +2,7 @@
 
 # 1. ArrayList 简介
 
-<img src="../pic/Java_ArrayList_1.png" style="zoom:25%;" />
+<img src="../../pic/Java_ArrayList_1.png" style="zoom:25%;" />
 
 ```java
 public class ArrayList<E> extends AbstractList<E>
@@ -25,7 +25,7 @@ public class ArrayList<E> extends AbstractList<E>
      */
     private static final int DEFAULT_CAPACITY = 10;
 
-		// EMPTY_ELEMENTDATA和DEFAULTCAPACITY_EMPTY_ELEMENTDATA的区别在于，DEFAULT_CAPACITY_ELEMENTDATA是由默认构造函数构造的空数组，而EMPTY_ELEMENTDATA是由`public ArrayList(int initialCapacoty)`构造的。区分它们主要是为了后面扩容可以区分这两者，如果是默认构造函数构造的空数组，那么它的Capacity应当是10.
+		// EMPTY_ELEMENTDATA和DEFAULTCAPACITY_EMPTY_ELEMENTDATA的区别在于，DEFAULT_CAPACITY_EMPTY_ELEMENTDATA是由默认构造函数构造的空数组，而EMPTY_ELEMENTDATA是由`public ArrayList(int initialCapacoty)`构造的。区分它们主要是为了后面扩容可以区分这两者，如果是默认构造函数构造的空数组，那么它的Capacity应当是10.
     /**
      * Shared empty array instance used for empty instances.
      */
@@ -160,7 +160,7 @@ arrayList.add(11);
 
 #### 2.2.2 ensureCapacityInternal方法
 
-下面我们来看看`ensureCapacityInternal`方法如何实现的。实际上，`ensureCapacityInternal(int minCapacity)`先调用`calculateCapacity`计算最小容量：如果当前还是由默认无参构造函数构造的空数组(`DEFAULTCAPACITY_EMPTY_ELEMENTDATA`)，且`minCapacity < DEFAULT_CAPACITY`则更新`minCapacity`为默认容量（10）；否则不变。然后调用`ensureExplicitCapacity(int minCapacity)`判断是否需要扩容，如果`minCapacity`大于`elementData`数组的长度（`minCapacity - elementData.length > 0`）则调用`grow(int minCapacity)`进行扩容，否则（容量足够）返回`add`方法，直接赋值。
+下面我们来看看`ensureCapacityInternal`方法如何实现的。实际上，`ensureCapacityInternal(int minCapacity)`先调用`calculateCapacity`计算最小容量：如果当前还是由默认无参构造函数构造的空数组(`DEFAULTCAPACITY_EMPTY_ELEMENTDATA`)，且`minCapacity < DEFAULT_CAPACITY`则更新`minCapacity`为默认容量（10）；否则不变。然后调用`ensureExplicitCapacity(int minCapacity)`判断是否需要扩容，如果`minCapacity`大于`elementData`数组的长度（`minCapacity - elementData.length > 0`）则调用`grow(int minCapacity)`进行扩容，否则（容量足够）返回`add`方法，直接赋值，但是注意不论是那种情况都会`modCount++`。
 
 ```java
     private static int calculateCapacity(Object[] elementData, int minCapacity) {
@@ -187,7 +187,7 @@ arrayList.add(11);
 
 #### 2.2.3  grow方法
 
-`grow`方法需要找到合适的扩容后的容量`newCapacity`，主要有两种策略：1. 扩容为上一次容量的1.5倍左右； 2. 扩容为传入的`minCapacity`。扩容后的容量`newCapacity`就为两者的较大者（我认为，这里最主要的目的就是为了一次性扩充足够的容量，避免每次添加元素都扩充1，造成大量的复制工作，至于为什么是1.5倍就是空间和效率的权衡了)。然后有可能`newCapacity`非常大，比int可以表示的数还要大或者比数组最大的容量还要大，那么调用`hugeCapacity`判断是否`minCapacity`有溢出（因为`minCapacity`代表当前数组添加元素后所需要的最小容量），如果溢出则抛出`OutOfMemoryError`错误，如果`minCapacity > MAX_ARRAY_SIZE`则将新容量设置为`Integer.MAX_VALUE`，否则就设置为`MAX_ARRAY_SIZE`。
+`grow`方法需要找到合适的扩容后的容量`newCapacity`，主要有两种策略：1. 扩容为上一次容量的1.5倍左右； 2. 扩容为传入的`minCapacity`。扩容后的容量`newCapacity`就为两者的较大者（我认为，这里最主要的目的就是为了一次性扩充足够的容量，避免每次添加元素都扩充1，造成大量的复制工作，至于为什么是1.5倍就是空间和效率的权衡了)。然后有可能`newCapacity`非常大，比int可以表示的数还要大或者比定义的数组最大的容量`MAX_ARRAY_SIZE`还要大，那么调用`hugeCapacity`判断是否`minCapacity`有溢出（因为`minCapacity`代表当前数组添加元素后所需要的最小容量），如果溢出则抛出`OutOfMemoryError`错误，如果`minCapacity > MAX_ARRAY_SIZE`则将新容量设置为`Integer.MAX_VALUE`，否则就设置为`MAX_ARRAY_SIZE`。
 
 ```java
 
